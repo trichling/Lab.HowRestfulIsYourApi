@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/bin/Debug/netcoreapp2.0/dotnetCologne.RichardsonMaturityModel.Api.dll",
+            "program": "${workspaceFolder}/dotnetcologen.RichardsonMaturityModel.Api/bin/Debug/netcoreapp2.0/dotnetCologne.RichardsonMaturityModel.Api.dll",
             "args": [],
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/dotnetcologen.RichardsonMaturityModel.Api",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
             "launchBrowser": {
