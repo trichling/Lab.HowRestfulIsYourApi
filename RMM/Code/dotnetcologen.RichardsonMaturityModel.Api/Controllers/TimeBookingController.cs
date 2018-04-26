@@ -29,7 +29,7 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers
         }
 
         [HttpGet]
-        [Route("{date}", Name = "GetByDate")]
+        [Route("{date}")]
         [ProducesResponseType(typeof(TimeBooking), 200)]
         public IActionResult GetByDate([FromRoute] string name, [FromRoute] DateTime date)
         {
@@ -38,6 +38,7 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers
         }
 
         [HttpPost]
+        [Consumes("application/json")]
         [ProducesResponseType(typeof(TimeBooking), 201)]
         public IActionResult Create([FromRoute] string name, [FromBody] TimeBooking booking)
         {

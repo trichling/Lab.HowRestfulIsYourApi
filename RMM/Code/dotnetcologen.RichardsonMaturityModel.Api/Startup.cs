@@ -10,6 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Swagger;
+using FluentSiren.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace dotnetCologne.RichardsonMaturityModel.Api
 {
@@ -29,8 +31,11 @@ namespace dotnetCologne.RichardsonMaturityModel.Api
                 c.SwaggerDoc("v1", new Info() { Title = "Timesheet API", Version = "v1" });
             });
 
-            services.AddMvc();
-
+            services.AddMvc(options => { 
+                options.OutputFormatters.Insert(0, new dotnetCologne.RichardsonMaturityModel.Api.Infrastructure.SirenOutputFormatter()); 
+            });
+            
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddSingleton<ITimesheetRepository, InMemoryTimesheetRepository>();
         }
 
