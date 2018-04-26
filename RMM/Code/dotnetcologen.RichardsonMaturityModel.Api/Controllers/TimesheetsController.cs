@@ -4,6 +4,7 @@ using dotnetCologne.RichardsonMaturityModel.Api.Repositories;
 using dotnetCologne.RichardsonMaturityModel.Api.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
+using Newtonsoft.Json.Linq;
 
 namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
 
@@ -16,6 +17,41 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
             this.repostitory = repostitory;
         }
 
+        [HttpPost]
+        [Route("execute")]
+        [Consumes("application/json")]
+        public IActionResult Execute([FromQuery] string operation, [FromBody] JObject parameters)
+        {
+            switch (operation)
+            {
+                case "ShowAllTimesheets":
+                    return Ok(repostitory.GetAll());
+                
+                case "ShowTimeSheet":
+                    var getTimesheetRequest = parameters.ToObject<GetTimesheetRequest>();
+                    return Ok(repostitory.GetByName(getTimesheetRequest.Name));
+
+                case "CreateTimeSheet":
+                    var createTimesheetRequest = parameters.ToObject<CreateTimesheetRequest>();
+                    var timesheet = new Timesheet(createTimesheetRequest.Name);
+                    repostitory.Save(timesheet);
+                    return Ok(timesheet);
+
+                case "RenameTimeSheet":
+                    var renameTimeSheetRequest = parameters.ToObject<RenameTimesheetReqeust>();
+                    var timesheet1 = repostitory.GetByName(renameTimeSheetRequest.TimesheetToRename);
+                    timesheet1.Name = renameTimeSheetRequest.NewName;
+                    repostitory.Delete(renameTimeSheetRequest.TimesheetToRename);
+                    repostitory.Save(timesheet1);
+                    return Ok();
+            }
+
+            return Ok();
+        }
+
+
+        #region "Ignored for RMM Level 0"
+        [ApiExplorerSettings(IgnoreApi = true)]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<Timesheet>), 200)]
         public IActionResult GetAll() 
@@ -23,6 +59,7 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
             return Ok(repostitory.GetAll());
         }
 
+        [ApiExplorerSettings(IgnoreApi = true)]        
         [HttpGet]
         [Route("{name}", Name="GetByName")]
         [ProducesResponseType(typeof(Timesheet), 200)]
@@ -35,6 +72,7 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
             return Ok(repostitory.GetByName(name));
         }
 
+        [ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost]
         [Consumes("application/json")]
         [ProducesResponseType(typeof(Timesheet), 201)]
@@ -50,6 +88,7 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
             return CreatedAtRoute("GetByName", new { name = timesheet.Name }, timesheet);
         }
 
+        [ApiExplorerSettings(IgnoreApi = true)]
         [HttpPatch]
         [Route("{name}")]
         [Consumes("application/json-patch+json")] // https://tools.ietf.org/html/rfc6902
@@ -75,6 +114,7 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
             repostitory.Save(timesheet);
             return Ok(timesheet);
         }
+        #endregion
     }
 
 }

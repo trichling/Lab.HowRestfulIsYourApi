@@ -3,7 +3,7 @@ using System;
 namespace dotnetCologne.RichardsonMaturityModel.Api.Models 
 {
 
-    public class NewTimesheet
+    public class GetTimesheetRequest
     {
 
         public string Name { get; set; }
