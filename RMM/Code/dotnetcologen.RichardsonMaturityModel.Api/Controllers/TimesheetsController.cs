@@ -4,23 +4,29 @@ using dotnetCologne.RichardsonMaturityModel.Api.Repositories;
 using dotnetCologne.RichardsonMaturityModel.Api.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
+using AutoMapper;
 
 namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
 
     [Route("timesheets")]
     public class TimesheetsController:Controller {
+        private readonly IMapper mapper;
         private readonly ITimesheetRepository repostitory;
 
         public TimesheetsController(ITimesheetRepository repostitory) 
         {
+            mapper = new MapperConfiguration(c => {
+                c.CreateMap<Timesheet, TimesheetHeader>();
+            }).CreateMapper();
+            
             this.repostitory = repostitory;
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<Timesheet>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<TimesheetHeader>), 200)]
         public IActionResult GetAll() 
         {
-            return Ok(repostitory.GetAll());
+            return Ok(mapper.Map<IEnumerable<TimesheetHeader>>(repostitory.GetAll()));
         }
 
         [HttpGet]
