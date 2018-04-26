@@ -5,6 +5,7 @@ using dotnetCologne.RichardsonMaturityModel.Api.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
 using Newtonsoft.Json.Linq;
+using System;
 
 namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
 
@@ -43,6 +44,30 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
                     timesheet1.Name = renameTimeSheetRequest.NewName;
                     repostitory.Delete(renameTimeSheetRequest.TimesheetToRename);
                     repostitory.Save(timesheet1);
+                    return Ok();
+
+                case "ShowAllTimebookings":
+                    var showAllTimebookingsRequest = parameters.ToObject<GetAllTimebookingsRequest>();
+                    var timesheet2 = repostitory.GetByName(showAllTimebookingsRequest.Timesheet);
+                    return Ok(timesheet2.Bookings);
+                
+                case "ShowTimebooking":
+                    var showTimebookingRequest = parameters.ToObject<GetTimebookingRequest>();
+                    var timesheet3 = repostitory.GetByName(showTimebookingRequest.Timesheet);
+                    return Ok(timesheet3.GetBookingByDate(showTimebookingRequest.Date));
+
+                case "CreateTimebooking":
+                    var createTimebookingRequest = parameters.ToObject<CreateTimebookingsRequest>();
+                    var timesheet4 = repostitory.GetByName(createTimebookingRequest.Timesheet);
+                    timesheet4.BookTime(createTimebookingRequest.Date, createTimebookingRequest.Start, createTimebookingRequest.Pause, createTimebookingRequest.End);
+                    repostitory.Save(timesheet4);
+                    return Ok();
+
+                case "UpdateTimebooking":
+                    var udpateTimebookingRequest = parameters.ToObject<UpdateimebookingRequest>();
+                    var timesheet5 = repostitory.GetByName(udpateTimebookingRequest.Timesheet);
+                    timesheet5.Update(udpateTimebookingRequest.Date, new TimeBooking(DateTime.MinValue, udpateTimebookingRequest.Start, udpateTimebookingRequest.Pause, udpateTimebookingRequest.End));
+                    repostitory.Save(timesheet5);
                     return Ok();
             }
 

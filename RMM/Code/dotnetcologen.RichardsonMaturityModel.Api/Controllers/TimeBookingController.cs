@@ -9,6 +9,7 @@ using System;
 namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers 
 {
 
+    [ApiExplorerSettings(IgnoreApi = true)]
     [Route("timesheets/{name}/bookings")]
     public class TimeBookingController : Controller
     {
