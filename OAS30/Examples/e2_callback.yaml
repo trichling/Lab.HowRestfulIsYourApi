@@ -1,0 +1,41 @@
+  '/protokolle/{id}/maischen/aufheizen':
+    parameters:
+      - name: id
+        in: path
+        description: ID des Brautprokolls
+        required: true
+        schema:
+          type: string
+    post:
+      summary: Einen neue Aufheizphase im Maischprotokoll hinzufügen
+      tags:
+        - Maischen
+      responses:
+        '201':
+          description: Eintrag wurde angelegt.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/maischenLogEintragAufheizeRepresentation'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/maischenLogEintragAufheizeRepresentation'
+      callbacks:
+        myWebhook:
+          'http://notificationServer.com/heatingFinished?protokollId={$request.paht.id}':
+            post:
+              requestBody:
+                description: Callback payload
+                content: 
+                  'application/json':
+                    schema:
+                      type: object
+                      properties:
+                        targetTemperature: 
+                          type: integer
+                          example: $request.body.zieltemperatur
+              responses:
+                '200':
+                  description: webhook successfully processed and no retries will be performed

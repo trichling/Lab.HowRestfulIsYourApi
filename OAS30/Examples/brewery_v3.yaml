@@ -1,0 +1,563 @@
+openapi: 3.0.0
+servers:
+  - url: 'https://virtserver.swaggerhub.com/trichling/Brewery20/1.0.0'
+  - url: 'http://virtserver.swaggerhub.com/trichling/Brewery20/1.0.0'
+info:
+  title: Brauprotokoll API
+  description: Protokollierung des Brauprozesses
+  version: "1.0.0-oas3"
+  contact:
+    name: API Support
+    url: 'http://myUrl/support'
+    email: trichling@thinkexception.net
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+paths:
+  /protokolle:
+    get:
+      summary: Liste aller Brauprotokolle
+      description: |
+        Gibt eine Liste aller Brauprotokolle zurück.
+      tags:
+        - Brauprotokolle
+      responses:
+        '200':
+          description: Eine Liste aller Brauprotokolle
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/brauprotokollRepresentation'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Ein neues Brauprotokoll anlegen
+      description: >
+        Ermöglicht das erstellen eines neuen Brauprotokolls. Die Angabe der Id
+        ist nicht erforderlich, diese wird automatisch generiert.
+      tags:
+        - Brauprotokolle
+      responses:
+        '201':
+          description: Das Brauprotokoll wurde angelegt.
+          headers:
+            Location:
+              description: Die URL des erzeugten Brauprotokolls
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/brauprotokollRepresentation'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/brauprotokollRepresentation'
+        description: Daten zum zu erstellenden Brauprotokoll.
+        required: true
+  '/protokolle/{id}':
+    parameters:
+      - name: id
+        in: path
+        description: ID des Brautprokolls
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Zeigt Details zu einem Brauprotokoll an
+      description: |
+        Gibt einen logbuchartigen Überblick über einen bestimmten Brauvorgang
+      tags:
+        - Brauprotokolle
+      responses:
+        '200':
+          description: Details zu einem Brauprzoess
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/brauprotokollRepresentation'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Ein bestehendes Brauprotokoll ändern.
+      description: >
+        Ermöglicht die Änderung eines bereits bestehenden Brauprotokolls. Die Id
+        kann nicht geändert werden. Wenn bereits weitergehende Daten des
+        Protokolls geändert worden sind, kann nur noch der Name geändert werden.
+      tags:
+        - Brauprotokolle
+      responses:
+        '200':
+          description: >-
+            Die übergebenen Daten wurden aktualisiert. Die Antwort enthält die
+            aktualisierte Ressource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/brauprotokollRepresentation'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/brauprotokollRepresentation'
+        description: Die zu ändernden Daten des Brauprotokolls.
+        required: true
+  '/protokolle/{id}/vorbereitung':
+    parameters:
+      - name: id
+        in: path
+        description: ID des Brautprokolls
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Checkliste für die Vorbereitung des Brautags
+      description: >
+        Zeigt die Checkliste der notwendigen Schritte die vor der Durchführung
+        des Brautags erledigt werden müssen.
+      tags:
+        - Vorbereitungen
+      responses:
+        '200':
+          description: Die Checkliste der Vorbereitungen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vorbereitungChecklisteRepresentation'
+    put:
+      summary: Legt eine neue Checkliste an.
+      description: >
+        Es wird eine neue Checkliste angelegt. Der Entity-Body wird ignoriert.
+        Diese Methode ist nur zur Unterstützung beim Mocken mit Swagger Server.
+      tags:
+        - Vorbereitungen
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vorbereitungChecklisteRepresentation'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/vorbereitungChecklisteRepresentation'
+        description: Die neue Checkliste.
+    patch:
+      summary: Einen Punkt der Checkliste als erledigt markieren.
+      description: >
+        Mit dieser Methode kann ein Element der Checkliste als erledigt markiert
+        werden.
+      tags:
+        - Vorbereitungen
+      responses:
+        '200':
+          description: Der Punkt wurde erfolgreich als erledigt markiert
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vorbereitungChecklisteRepresentation'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/vorbereitungChecklisteRepresentation'
+        description: Der Name des Checklisteneintrags der erledigt wurde.
+  '/protokolle/{id}/maischen':
+    parameters:
+      - name: id
+        in: path
+        description: ID des Brautprokolls
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Zeigt das den Verlauf des Maischens
+      tags:
+        - Maischen
+      responses:
+        '200':
+          description: Die Liste der Logeinträge zum Maischeverlauf
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/maischenLogRepresentation'
+  '/protokolle/{id}/maischen/rast':
+    parameters:
+      - name: id
+        in: path
+        description: ID des Brautprokolls
+        required: true
+        schema:
+          type: string
+    post:
+      summary: Einen neue Rast im Maischprotokoll hinzufügen
+      tags:
+        - Maischen
+      responses:
+        '201':
+          description: Eintrag wurde angelegt.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/maischenLogEintragRastRepresentation'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/maischenLogEintragRastRepresentation'
+  '/protokolle/{id}/maischen/aufheizen':
+    parameters:
+      - name: id
+        in: path
+        description: ID des Brautprokolls
+        required: true
+        schema:
+          type: string
+    post:
+      summary: Einen neue Aufheizphase im Maischprotokoll hinzufügen
+      tags:
+        - Maischen
+      responses:
+        '201':
+          description: Eintrag wurde angelegt.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/maischenLogEintragAufheizeRepresentation'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/maischenLogEintragAufheizeRepresentation'
+  '/protokolle/{id}/laeutern':
+    parameters:
+      - name: id
+        in: path
+        description: ID des Brautprokolls
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Zeigt das den Verlauf des Läuterns
+      tags:
+        - Laeutern
+      responses:
+        '200':
+          description: Die Liste der Logeinträge zum Läuterverlauf
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/laeuternLogRepresentation'
+    post:
+      summary: Einen neuen Eintrag im Läuterprotokoll hinzufügen
+      tags:
+        - Laeutern
+      responses:
+        '201':
+          description: Eintrag wurde angelegt.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/laeuternLogEintragRepresentation'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/laeuternLogEintragRepresentation'
+  '/protokolle/{id}/kochen':
+    parameters:
+      - name: id
+        in: path
+        description: ID des Brautprokolls
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Zeigt das den Verlauf des Kochens
+      tags:
+        - Kochen
+      responses:
+        '200':
+          description: Die Liste der Logeinträge zum Kochverlauf
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/kochenLogRepresentation'
+    post:
+      summary: Einen neuen Eintrag im Kochprotokoll hinzufügen
+      tags:
+        - Kochen
+      responses:
+        '201':
+          description: Eintrag wurde angelegt.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/kochenLogEintragRepresentation'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/kochenLogEintragRepresentation'
+  '/protokolle/{id}/ausschlagen':
+    parameters:
+      - name: id
+        in: path
+        description: ID des Brautprokolls
+        required: true
+        schema:
+          type: string
+    get:
+      summary: 'Zeigt die Übersicht über das Ausschlagen, Hopfenseihen und Kühlen'
+      tags:
+        - Ausschlagen
+      responses:
+        '200':
+          description: Die Liste der Logeinträge zum Kochverlauf
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ausschlagenRepresentation'
+    put:
+      summary: Legt einen neuen Detaildatensatz an.
+      tags:
+        - Ausschlagen
+      description: >
+        Es wird ein neuer Detaildatensatz angelegt. Der Entity-Body wird
+        ignoriert. Diese Methode ist nur zur Unterstützung beim Mocken mit
+        Swagger Server.
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ausschlagenRepresentation'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ausschlagenRepresentation'
+        description: Die neue Checkliste.
+    patch:
+      summary: 'Ergänzt einen Eintrag in den Details zum Ausschlagen, Kühlen, Anstellen'
+      tags:
+        - Ausschlagen
+      responses:
+        '200':
+          description: Information wurde hinzugefügt.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ausschlagenRepresentation'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ausschlagenRepresentation'
+components:
+  schemas:
+    brauprotokollRepresentation:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Eindeutiger Bezeichner dieses Brauprotokolls
+        title:
+          type: string
+          description: Name des Brauvorhabens
+        brautag:
+          type: string
+          format: date-time
+          description: Datum des Brautags
+        biername:
+          type: string
+          description: Der Name des zu brauenden Bieres
+        stammwuerze:
+          type: number
+          format: double
+          description: Die gewünschte Stammwürze des Bieres
+      required:
+        - title
+        - brautag
+        - biername
+        - stammwuerze
+    vorbereitungChecklisteRepresentation:
+      type: object
+      properties:
+        brautag_angemeledet:
+          type: boolean
+          description: Wurde der Brautag beim zuständigen Hauptzollamt angemeldet?
+        brautag_angemledet_am:
+          type: string
+          format: date-time
+          description: Wann wurde der Brautag beim zuständigen Hauptzollamt angemeldet?
+        rezept_festgegelgt:
+          type: boolean
+          description: Wurde das Rezept für den Brautag bereits festgelegt?
+        rezept_festgegelgt_am:
+          type: string
+          format: date-time
+          description: Wann wurde das Rezept festgelegt?
+        zutaten_bestellt:
+          type: boolean
+          description: Wurde die Zutaten bereits bestellt?
+        zutaten_bestellt_am:
+          type: string
+          format: date-time
+          description: Wann wurde die Zutaten bestellt?
+        zutaten_geliefert:
+          type: boolean
+          description: Wurde die Zutaten bereits geliefert?
+        zutaten_geliefert_am:
+          type: string
+          format: date-time
+          description: Wann wurde die Zutaten geliefert?
+    maischenLogRepresentation:
+      properties:
+        eintraege:
+          type: array
+          items:
+            $ref: '#/components/schemas/maischenLogEintragRepresentation'
+      type: object
+    maischenLogEintragRepresentation:
+      type: object
+      discriminator:
+        propertyName: artDesEintrags
+      properties:
+        artDesEintrags:
+          type: string
+        zeitpunkt:
+          type: string
+          format: date-time
+          description: Der Zeitpunkt dieses Logeintrags. Wird beim automatisch generiert.
+        kommentar:
+          type: string
+          description: 'Weitere Informationen, z. B. Rast verlängert oder Jodnormal'
+    maischenLogEintragRastRepresentation:
+      allOf:
+        - $ref: '#/components/schemas/maischenLogEintragRepresentation'
+        - type: object
+          properties:
+            name:
+              type: string
+              description: >-
+                Der Name der Rast, z. B. Eiweißrast, Maltoserast,
+                Verzuckerungsrast.
+            temparaturVon:
+              type: number
+              format: decimal
+              description: Die untere Grenze des Temperaturbereichs der Rast
+            temparaturBis:
+              type: number
+              format: decimal
+              description: Die obere Grenze im Temperaturbereich der Rast
+            dauer:
+              type: number
+              format: int32
+              description: Die Länge der Rast in Minuten
+    maischenLogEintragAufheizeRepresentation:
+      allOf:
+        - $ref: '#/components/schemas/maischenLogEintragRepresentation'
+        - type: object
+          properties:
+            rastBeiZieltemperatur:
+              type: string
+              description: Der Name der Rast zu deren Temperatur aufgeheizt werden soll.
+            zieltemperatur:
+              type: number
+              format: decimal
+              description: Die Zieltemperatur zu der aufgeheizt werden soll.
+    laeuternLogRepresentation:
+      properties:
+        eintraege:
+          type: array
+          items:
+            $ref: '#/components/schemas/laeuternLogEintragRepresentation'
+      type: object
+    laeuternLogEintragRepresentation:
+      type: object
+      properties:
+        zeitpunkt:
+          type: string
+          format: date-time
+        temperatur:
+          type: number
+          format: decimal
+        stammwuerze:
+          type: number
+          format: decimal
+        liter:
+          type: number
+          format: decimal
+        messort:
+          type: string
+          description: Wo wurde die Probe zur Messung genommen? Würze oder Nachlauf.
+    kochenLogRepresentation:
+      properties:
+        eintraege:
+          type: array
+          items:
+            $ref: '#/components/schemas/kochenLogEintragRepresentation'
+      type: object
+    kochenLogEintragRepresentation:
+      type: object
+      properties:
+        zeitpunkt:
+          type: string
+          format: date-time
+        hopfengabe:
+          type: string
+          description: Die Hopfensorte die zugegeben wird.
+        menge:
+          type: number
+          description: Die Hopfenmenge in Gramm.
+        bemerkung:
+          type: string
+          description: 'Zusätzliche Informationen, z. B. Vorderwürzehopfung oder Kochbeginn.'
+    ausschlagenRepresentation:
+      type: object
+      properties:
+        ausschlagwuerze:
+          type: number
+          format: decimal
+          description: Die Menge der heißen Würze mitsamt Hopfentreber
+        beginnKuehlen:
+          type: string
+          format: date-time
+          description: Der Zeitpunkt zu dem das Hopfenseihen / Kühlen beginnt.
+        endeKuehlen:
+          type: string
+          format: date-time
+          description: Der Zeitpunkt zu dem das Kühlen beendet ist
+        anstellwuerze:
+          type: number
+          format: decimal
+          description: 'Die Menge der gekühlten, anstellfähigen Würze'
+        zeitpunktAnstellen:
+          type: string
+          format: date-time
+          description: Der Zeitpunkt zu dem die Würze angestellt wurde.
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        fields:
+          type: string

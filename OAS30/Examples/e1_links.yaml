@@ -1,0 +1,67 @@
+  '/protokolle/{id}':
+    parameters:
+      - name: id
+        in: path
+        description: ID des Brautprokolls
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Zeigt Details zu einem Brauprotokoll an
+      description: |
+        Gibt einen logbuchartigen Überblick über einen bestimmten Brauvorgang
+      tags:
+        - Brauprotokolle
+      responses:
+        '200':
+          description: Details zu einem Brauprzoess
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/brauprotokollRepresentation'
+          links:
+            vorbereitung:
+              # operationId: getMaischenLog
+              operationRef: '#/paths/protokolle/{id}/vorbereitung'
+              parameters:
+                id: $request.path.id
+            maischen:
+              # operationId: getMaischenLog
+              operationRef: '#/paths/protokolle/{id}/maischen'
+              parameters:
+                id: $request.path.id
+            lautern:
+              # operationId: getMaischenLog
+              operationRef: '#/paths/protokolle/{id}/laeutern'
+              parameters:
+                id: $request.path.id
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Ein bestehendes Brauprotokoll ändern.
+      description: >
+        Ermöglicht die Änderung eines bereits bestehenden Brauprotokolls. Die Id
+        kann nicht geändert werden. Wenn bereits weitergehende Daten des
+        Protokolls geändert worden sind, kann nur noch der Name geändert werden.
+      tags:
+        - Brauprotokolle
+      responses:
+        '200':
+          description: >-
+            Die übergebenen Daten wurden aktualisiert. Die Antwort enthält die
+            aktualisierte Ressource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/brauprotokollRepresentation'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/brauprotokollRepresentation'
+        description: Die zu ändernden Daten des Brauprotokolls.
+        required: true
