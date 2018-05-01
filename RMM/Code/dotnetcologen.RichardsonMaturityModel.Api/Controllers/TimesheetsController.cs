@@ -26,19 +26,9 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
         {
             var timesheets = repostitory.GetAll();
 
-            var template = new Template();
-            template.Data.Add(new DataElement("name") { Prompt = "Name" });
+           
 
-            //var timesheetItems = timesheets.Select(t => new Item<Timesheet, Link>() {  })
-            var response = new Collection(new Uri("/timesheets", UriKind.Relative))
-            {
-                Template = template,
-                Items = timesheets.Select(t => new Item(new Uri($"/timesheets/{t.Name}", UriKind.Relative)) {
-                    Data = new List<DataElement>() { new DataElement("Id") { Value = t.Id.ToString() }, new DataElement("Name") { Value = t.Name } }
-                }).ToList()
-            };
-
-            return Ok(response);
+            return Ok(timesheets);
         }
 
         [HttpGet]
@@ -59,9 +49,7 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
         [ProducesResponseType(typeof(void), 409)]
         public IActionResult Create([FromBody] TimesheetTemplate newTimesheetTemplate)
         {
-            var tempalteName = newTimesheetTemplate.Template.Data.Single(d => d.Name == "name").Value;
-            if (repostitory.Exists(tempalteName))
-                return this.ConflictWithRoute("GetByName", new { name = tempalteName });
+            var tempalteName = "";
 
             var timesheet = new Timesheet(tempalteName);
             repostitory.Save(timesheet);
