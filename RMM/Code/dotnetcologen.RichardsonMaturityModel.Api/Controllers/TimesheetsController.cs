@@ -52,25 +52,20 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
 
         [HttpPatch]
         [Route("{name}")]
-        [Consumes("application/json-patch+json")] // https://tools.ietf.org/html/rfc6902
         [ProducesResponseType(typeof(Timesheet), 200)]
         [ProducesResponseType(typeof(void), 404)]
         [ProducesResponseType(typeof(void), 409)]
-        public IActionResult Update([FromRoute] string name, [FromBody] JsonPatchDocument<Timesheet> patchDocument)
+        public IActionResult Update([FromRoute] string name, [FromBody] Timesheet timesheetToPatch)
         {
             if (!repostitory.Exists(name))
                 return NotFound();
 
             var timesheet = repostitory.GetByName(name);
-            patchDocument.ApplyTo(timesheet);
+            
+            if (timesheet.Name != timesheetToPatch.Name)
+                timesheet.Name = timesheetToPatch.Name;
 
-            if (name != timesheet.Name) // Name has changed, check for conflicts
-            {
-                if (repostitory.Exists(timesheet.Name)) // new name conflicts with exisitng timesheet
-                    return this.ConflictWithRoute("GetByName", new { name = timesheet.Name });
-
-                repostitory.Delete(name);
-            }
+            // Add / Update / Remove bookings - oh oh!
 
             repostitory.Save(timesheet);
             return Ok(timesheet);
