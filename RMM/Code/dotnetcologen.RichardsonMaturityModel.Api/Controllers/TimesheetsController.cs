@@ -4,6 +4,9 @@ using dotnetCologne.RichardsonMaturityModel.Api.Repositories;
 using dotnetCologne.RichardsonMaturityModel.Api.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
+using Gach.CollectionJson.Model.Newtonsoft;
+using System.Linq;
+using System;
 
 namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
 
@@ -17,10 +20,25 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
         }
 
         [HttpGet]
+        [Produces("application/vnd.collection+json")]
         [ProducesResponseType(typeof(IEnumerable<Timesheet>), 200)]
         public IActionResult GetAll() 
         {
-            return Ok(repostitory.GetAll());
+            var timesheets = repostitory.GetAll();
+
+            var template = new Template();
+            template.Data.Add(new DataElement("name") { Prompt = "Name" });
+
+            //var timesheetItems = timesheets.Select(t => new Item<Timesheet, Link>() {  })
+            var response = new Collection(new Uri("/timesheets", UriKind.Relative))
+            {
+                Template = template,
+                Items = timesheets.Select(t => new Item(new Uri($"/timesheets/{t.Name}", UriKind.Relative)) {
+                    Data = new List<DataElement>() { new DataElement("Id") { Value = t.Id.ToString() }, new DataElement("Name") { Value = t.Name } }
+                }).ToList()
+            };
+
+            return Ok(response);
         }
 
         [HttpGet]
@@ -39,12 +57,13 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
         [Consumes("application/json")]
         [ProducesResponseType(typeof(Timesheet), 201)]
         [ProducesResponseType(typeof(void), 409)]
-        public IActionResult Create([FromBody] NewTimesheet newTimesheet)
+        public IActionResult Create([FromBody] TimesheetTemplate newTimesheetTemplate)
         {
-            if (repostitory.Exists(newTimesheet.Name))
-                return this.ConflictWithRoute("GetByName", new { name = newTimesheet.Name });
+            var tempalteName = newTimesheetTemplate.Template.Data.Single(d => d.Name == "name").Value;
+            if (repostitory.Exists(tempalteName))
+                return this.ConflictWithRoute("GetByName", new { name = tempalteName });
 
-            var timesheet = new Timesheet(newTimesheet.Name);
+            var timesheet = new Timesheet(tempalteName);
             repostitory.Save(timesheet);
 
             return CreatedAtRoute("GetByName", new { name = timesheet.Name }, timesheet);

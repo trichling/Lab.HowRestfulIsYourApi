@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using dotnetCologne.RichardsonMaturityModel.Api.Models;
@@ -13,7 +14,11 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Repositories
         public InMemoryTimesheetRepository()
         {
             timesheets = new Dictionary<string, Timesheet>() {
-                { "Test", new Timesheet("Test") }
+                { "Test", new Timesheet("Test", new List<TimeBooking>() {
+                    new TimeBooking(DateTime.Today, DateTime.Now.AddHours(-2), TimeSpan.FromMinutes(15), DateTime.Now.AddHours(2)),
+                    new TimeBooking(DateTime.Today.AddDays(-1), DateTime.Now.AddHours(-1), TimeSpan.FromMinutes(10), DateTime.Now.AddHours(2)),
+                    new TimeBooking(DateTime.Today.AddDays(-2), DateTime.Now.AddHours(-2), TimeSpan.FromMinutes(20), DateTime.Now.AddHours(3))
+                }) }
             };
         }
 

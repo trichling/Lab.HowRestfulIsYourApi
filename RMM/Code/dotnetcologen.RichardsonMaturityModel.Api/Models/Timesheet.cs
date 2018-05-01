@@ -17,6 +17,13 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Models
             _bookings = new List<TimeBooking>();
         }
 
+        public Timesheet(string name, IEnumerable<TimeBooking> bookings)
+        {
+            Id = Guid.NewGuid();
+            Name = name;
+            _bookings = new List<TimeBooking>(bookings);
+        }
+
         public Guid Id { get; }
         public string Name { get; set; }
         public ReadOnlyCollection<TimeBooking> Bookings => new ReadOnlyCollection<TimeBooking>(_bookings);
@@ -33,6 +40,17 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Models
             currentBooking.Start = updatedBooking.Start;
             currentBooking.Pause = updatedBooking.Pause;
             currentBooking.End = updatedBooking.End;
+
+            return currentBooking;
+        }
+
+        public TimeBooking Update(DateTime bookingDate, DateTime start, TimeSpan pause, DateTime end)
+        {
+            var currentBooking = GetBookingByDate(bookingDate);
+
+            currentBooking.Start = start;
+            currentBooking.Pause = pause;
+            currentBooking.End = end;
 
             return currentBooking;
         }
