@@ -25,14 +25,7 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
         {
             var timesheets = repostitory.GetAll();
 
-            var timesheetModel = timesheets.Select(t => new { t.Id, t.Name });
-
-            var response = new HALResponse(new { Count = timesheetModel.Count() })
-                                .AddLinks(new Link("self", "/timesheets"))
-                                // Paging links
-                                .AddEmbeddedCollection("timesheets", timesheetModel, new Link[] { new Link("self", "/timesheets/{Name}") });
-
-            return Ok(response);
+            return Ok(timesheets);
         }
 
         [HttpGet]
@@ -46,19 +39,7 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
 
             var timesheet = repostitory.GetByName(name);
 
-            var timesheetModel = new {
-                timesheet.Id,
-                timesheet.Name                
-            };
-
-            var bookingsModel = timesheet.Bookings.Select(b => new { b.Date, b.Duration });
-
-            var response = new HALResponse(timesheetModel)
-                                .AddLinks(new Link("self", "/timesheets/{Name}"))
-                                .AddLinks(new Link("bookings", "/timesheets/{Name}/bookings"))
-                                .AddEmbeddedCollection("bookings", bookingsModel, new Link[] { new Link("self", $"/timesheets/{timesheet.Name}/bookings/{{Date}}") });
-
-            return Ok(response);
+            return Ok(timesheet);
         }
 
         [HttpPost]
