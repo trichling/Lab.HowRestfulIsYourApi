@@ -17,6 +17,13 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Models
             _bookings = new List<TimeBooking>();
         }
 
+        public Timesheet(string name, IEnumerable<TimeBooking> bookings)
+        {
+            Id = Guid.NewGuid();
+            Name = name;
+            _bookings = new List<TimeBooking>(bookings);
+        }
+
         public Guid Id { get; }
         public string Name { get; set; }
         public ReadOnlyCollection<TimeBooking> Bookings => new ReadOnlyCollection<TimeBooking>(_bookings);

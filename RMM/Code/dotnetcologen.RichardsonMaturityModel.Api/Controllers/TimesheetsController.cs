@@ -4,6 +4,9 @@ using dotnetCologne.RichardsonMaturityModel.Api.Repositories;
 using dotnetCologne.RichardsonMaturityModel.Api.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
+using Halcyon.HAL;
+using Halcyon.Web.HAL;
+using System.Linq;
 
 namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
 
@@ -20,7 +23,16 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
         [ProducesResponseType(typeof(IEnumerable<Timesheet>), 200)]
         public IActionResult GetAll() 
         {
-            return Ok(repostitory.GetAll());
+            var timesheets = repostitory.GetAll();
+
+            var timesheetModel = timesheets.Select(t => new { t.Id, t.Name });
+
+            var response = new HALResponse(new { Count = timesheetModel.Count() })
+                                .AddLinks(new Link("self", "/timesheets"))
+                                // Paging links
+                                .AddEmbeddedCollection("timesheets", timesheetModel, new Link[] { new Link("self", "/timesheets/{Name}") });
+
+            return Ok(response);
         }
 
         [HttpGet]
@@ -32,7 +44,21 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
             if (!repostitory.Exists(name))
                 return NotFound();
 
-            return Ok(repostitory.GetByName(name));
+            var timesheet = repostitory.GetByName(name);
+
+            var timesheetModel = new {
+                timesheet.Id,
+                timesheet.Name                
+            };
+
+            var bookingsModel = timesheet.Bookings.Select(b => new { b.Date, b.Duration });
+
+            var response = new HALResponse(timesheetModel)
+                                .AddLinks(new Link("self", "/timesheets/{Name}"))
+                                .AddLinks(new Link("bookings", "/timesheets/{Name}/bookings"))
+                                .AddEmbeddedCollection("bookings", bookingsModel, new Link[] { new Link("self", $"/timesheets/{timesheet.Name}/bookings/{{Date}}") });
+
+            return Ok(response);
         }
 
         [HttpPost]

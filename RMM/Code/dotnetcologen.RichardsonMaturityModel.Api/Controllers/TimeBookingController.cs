@@ -5,6 +5,8 @@ using dotnetCologne.RichardsonMaturityModel.Api.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
 using System;
+using Halcyon.HAL;
+using System.Linq;
 
 namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers 
 {
@@ -25,7 +27,13 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers
         public IActionResult GetAll([FromRoute] string name)
         {
             var timesheet = repostitory.GetByName(name);
-            return Ok(timesheet.Bookings);
+            var bookingsModel = timesheet.Bookings.Select(b => new { b.Date, b.Duration });
+
+            var response = new HALResponse(new { Count = bookingsModel.Count() })
+                                .AddLinks(new Link("self", $"/timesheets/{name}/bookings"))
+                                .AddEmbeddedCollection("bookings", bookingsModel, new Link[] { new Link("self", $"/timesheets/{name}/bookings/{{Date}}") });
+
+            return Ok(response);
         }
 
         [HttpGet]
@@ -34,7 +42,12 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers
         public IActionResult GetByDate([FromRoute] string name, [FromRoute] DateTime date)
         {
             var timesheet = repostitory.GetByName(name);
-            return Ok(timesheet.GetBookingByDate(date));
+            var booking = timesheet.GetBookingByDate(date);
+
+            var response = new HALResponse(booking)
+                                .AddLinks(new Link("self", $"/timesheets/{name}/bookings/{date}"));
+
+            return Ok(response);
         }
 
         [HttpPost]

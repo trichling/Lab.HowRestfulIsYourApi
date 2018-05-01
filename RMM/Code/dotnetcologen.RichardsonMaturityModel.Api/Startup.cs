@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using dotnetCologne.RichardsonMaturityModel.Api.Repositories;
+using Halcyon.Web.HAL.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -29,7 +30,9 @@ namespace dotnetCologne.RichardsonMaturityModel.Api
                 c.SwaggerDoc("v1", new Info() { Title = "Timesheet API", Version = "v1" });
             });
 
-            services.AddMvc();
+            services.AddMvc(c => {
+                c.OutputFormatters.Insert(0, new JsonHalOutputFormatter());
+            });
 
             services.AddSingleton<ITimesheetRepository, InMemoryTimesheetRepository>();
         }
