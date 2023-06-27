@@ -4,11 +4,13 @@ using dotnetCologne.RichardsonMaturityModel.Api.Repositories;
 using dotnetCologne.RichardsonMaturityModel.Api.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
-using Halcyon.HAL;
 using System.Linq;
+using Hal.AspNetCore;
+using Hal.Builders;
 
 namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
 
+    [ServiceFilter(typeof(SupportsHalAttribute))]
     [Route("timesheets")]
     public class TimesheetsController:Controller {
         private readonly ITimesheetRepository repostitory;
@@ -26,10 +28,15 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
 
             var timesheetModel = timesheets.Select(t => new { t.Id, t.Name });
 
-            var response = new HALResponse(new { Count = timesheetModel.Count() })
-                                .AddLinks(new Link("self", "/timesheets"))
-                                // Paging links
-                                .AddEmbeddedCollection("timesheets", timesheetModel, new Link[] { new Link("self", "/timesheets/{Name}") });
+            var response = new ResourceBuilder()
+                                .WithState(timesheetModel)
+                                .AddSelfLink().WithLinkItem("/timesheets")
+                                .AddEmbedded("timesheets")
+                                    .Resource(new ResourceBuilder()
+                                        .WithState(timesheetModel)
+                                        .AddLink("timesheet")
+                                        .WithLinkItem("/timesheets/{Name}", templated: true)
+                                    );
 
             return Ok(response);
         }
@@ -52,10 +59,15 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {
 
             var bookingsModel = timesheet.Bookings.Select(b => new { b.Date, b.Duration });
 
-            var response = new HALResponse(timesheetModel)
-                                .AddLinks(new Link("self", "/timesheets/{Name}"))
-                                .AddLinks(new Link("bookings", "/timesheets/{Name}/bookings"))
-                                .AddEmbeddedCollection("bookings", bookingsModel, new Link[] { new Link("self", $"/timesheets/{timesheet.Name}/bookings/{{Date}}") });
+            var response = new ResourceBuilder()
+                .WithState(bookingsModel)
+                .AddSelfLink().WithLinkItem("/timesheets/{Name}", templated: true)
+                .AddLink("bookings").WithLinkItem("/timesheets/{Name}/bookings", templated: true)
+                .AddEmbedded("bookings")
+                .Resource(new ResourceBuilder()
+                    .WithState(bookingsModel)
+                    .AddSelfLink()
+                );
 
             return Ok(response);
         }

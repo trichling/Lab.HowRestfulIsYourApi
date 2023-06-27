@@ -1,10 +1,12 @@
 using dotnetCologne.RichardsonMaturityModel.Api.Repositories;
-using Halcyon.Web.HAL.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using Hal;
+using Hal.AspNetCore;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace dotnetCologne.RichardsonMaturityModel.Api
 {
@@ -25,9 +27,17 @@ namespace dotnetCologne.RichardsonMaturityModel.Api
             });
 
             services.AddControllers(c => {
-                c.OutputFormatters.Insert(0, new JsonHalOutputFormatter());
             });
+            
+            services.AddHalSupport();
 
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.All;
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
+            });
+            
             services.AddSingleton<ITimesheetRepository, InMemoryTimesheetRepository>();
         }
 

@@ -3,12 +3,15 @@ using dotnetCologne.RichardsonMaturityModel.Api.Models;
 using dotnetCologne.RichardsonMaturityModel.Api.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using Halcyon.HAL;
 using System.Linq;
+using Hal;
+using Hal.AspNetCore;
+using Hal.Builders;
 
 namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers 
 {
 
+    [ServiceFilter(typeof(SupportsHalAttribute))]
     [Route("timesheets/{name}/bookings")]
     public class TimeBookingController : Controller
     {
@@ -27,9 +30,13 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers
             var timesheet = repostitory.GetByName(name);
             var bookingsModel = timesheet.Bookings.Select(b => new { b.Date, b.Duration });
 
-            var response = new HALResponse(new { Count = bookingsModel.Count() })
-                                .AddLinks(new Link("self", $"/timesheets/{name}/bookings"))
-                                .AddEmbeddedCollection("bookings", bookingsModel, new Link[] { new Link("self", $"/timesheets/{name}/bookings/{{Date}}") });
+            var response = new ResourceBuilder()
+                .WithState(new { Count = bookingsModel.Count() })
+                .AddSelfLink().WithLinkItem($"/timesheets/{name}/bookings")
+                .AddEmbedded("bookings").Resource(new ResourceBuilder()
+                    .WithState(bookingsModel)
+                    .AddSelfLink().WithLinkItem("/timesheets/" + name + "/bookings/{date}", templated: true)
+                );
 
             return Ok(response);
         }
@@ -42,8 +49,9 @@ namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers
             var timesheet = repostitory.GetByName(name);
             var booking = timesheet.GetBookingByDate(date);
 
-            var response = new HALResponse(booking)
-                                .AddLinks(new Link("self", $"/timesheets/{name}/bookings/{date}"));
+            var response = new ResourceBuilder()
+                .WithState(booking)
+                .AddSelfLink().WithLinkItem($"/timesheets/{name}/bookings/{date}");
 
             return Ok(response);
         }
