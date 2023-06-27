@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace dotnetCologne.RichardsonMaturityModel.Api.Models 
+﻿namespace dotnetCologne.RichardsonMaturityModel.Api.Models 
 {
 
     public class NewTimesheet

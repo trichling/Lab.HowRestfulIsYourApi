@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using dotnetCologne.RichardsonMaturityModel.Api.Models;
 using dotnetCologne.RichardsonMaturityModel.Api.Repositories;
-using dotnetCologne.RichardsonMaturityModel.Api.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.JsonPatch;
 using System;
 using Halcyon.HAL;
 using System.Linq;

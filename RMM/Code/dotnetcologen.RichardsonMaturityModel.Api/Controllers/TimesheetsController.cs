@@ -5,7 +5,6 @@ using dotnetCologne.RichardsonMaturityModel.Api.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
 using Halcyon.HAL;
-using Halcyon.Web.HAL;
 using System.Linq;
 
 namespace dotnetCologne.RichardsonMaturityModel.Api.Controllers {

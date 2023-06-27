@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using dotnetCologne.RichardsonMaturityModel.Api.Repositories;
 using Halcyon.Web.HAL.Json;
 using Microsoft.AspNetCore.Builder;
