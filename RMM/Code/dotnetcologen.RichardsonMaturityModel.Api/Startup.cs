@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using dotnetCologne.RichardsonMaturityModel.Api.Repositories;
+﻿using dotnetCologne.RichardsonMaturityModel.Api.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.OpenApi.Models;
 
 namespace dotnetCologne.RichardsonMaturityModel.Api
 {
@@ -26,10 +20,10 @@ namespace dotnetCologne.RichardsonMaturityModel.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSwaggerGen(c => {
-                c.SwaggerDoc("v1", new Info() { Title = "Timesheet API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo() { Title = "Timesheet API", Version = "v1" });
             });
 
-            services.AddMvc();
+            services.AddControllers();
 
             services.AddSingleton<ITimesheetRepository, InMemoryTimesheetRepository>();
         }
@@ -42,13 +36,20 @@ namespace dotnetCologne.RichardsonMaturityModel.Api
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseMvc();
-
             app.UseSwagger();
 
             app.UseSwaggerUI(c => {
                 c.SwaggerEndpoint("v1/swagger.json", "Timesheet API v1");
             });
+            
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllers();
+                }
+            );
+
         }
     }
 }
